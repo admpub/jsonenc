@@ -3,6 +3,8 @@ package json
 import (
 	"bytes"
 	"testing"
+
+	"github.com/admpub/xencoding/filter"
 )
 
 func TestFilter(t *testing.T) {
@@ -34,7 +36,7 @@ func TestFilter(t *testing.T) {
 			},
 		},
 	}
-	r, err := MarshalFilter(u, Exclude("Password"))
+	r, err := MarshalFilter(u, filter.Exclude("Password"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -43,7 +45,7 @@ func TestFilter(t *testing.T) {
 		t.Error("MarshalFilter failed")
 	}
 
-	r, err = MarshalSelector(u, Include("ID", "Password", "Profile.*"))
+	r, err = MarshalSelector(u, filter.Include("ID", "Password", "Profile.*"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -53,8 +55,8 @@ func TestFilter(t *testing.T) {
 	}
 
 	r, err = MarshalWithOption(u,
-		OptionFilter(Exclude("Password", "Profile.Post.Body")),
-		OptionSelector(Include("ID", "Password", "Profile.*")),
+		OptionFilter(filter.Exclude("Password", "Profile.Post.Body")),
+		OptionSelector(filter.Include("ID", "Password", "Profile.*")),
 	)
 	if err != nil {
 		t.Error(err)

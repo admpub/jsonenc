@@ -25,6 +25,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 	_ "unsafe" // for linkname
+
+	"github.com/admpub/xencoding/filter"
 )
 
 // Marshal returns the JSON encoding of v.
@@ -272,8 +274,6 @@ type encodeState struct {
 	// reasonable amount of nested pointers deep.
 	ptrLevel uint
 	ptrSeen  map[any]struct{}
-
-	path string
 }
 
 const startDetectingCyclesAfter = 1000
@@ -341,8 +341,7 @@ type encOpts struct {
 	// escapeHTML causes '<', '>', and '&' to be escaped in JSON strings.
 	escapeHTML bool
 
-	filter   Filter
-	selector Selector
+	filter filter.Config
 }
 
 type encoderFunc func(e *encodeState, v reflect.Value, opts encOpts)
@@ -701,33 +700,12 @@ type structFields struct {
 
 func (se structEncoder) encode(e *encodeState, v reflect.Value, opts encOpts) {
 	next := byte('{')
-	var filters []func(f *field, v reflect.Value) bool
-	if opts.selector != nil || opts.filter != nil {
-		path := e.path
-		var pa func(f *field) string
-		if len(path) > 0 {
-			pa = func(f *field) string {
-				return path + "." + f.name
-			}
-		} else {
-			pa = func(f *field) string {
-				return f.name
-			}
-			defer e.resetPath()
-		}
-		if opts.selector != nil {
-			filters = append(filters, func(f *field, v reflect.Value) bool {
-				e.path = pa(f)
-				return !opts.selector.Select(e.path, v)
-			})
-		}
-		if opts.filter != nil {
-			filters = append(filters, func(f *field, v reflect.Value) bool {
-				e.path = pa(f)
-				return opts.filter.Filter(e.path, v)
-			})
-		}
+
+	reset, filters := opts.filter.MakeFilters()
+	if reset != nil {
+		defer reset()
 	}
+
 FieldLoop:
 	for i := range se.fields.list {
 		f := &se.fields.list[i]
@@ -748,10 +726,8 @@ FieldLoop:
 			(f.omitZero && (f.isZero == nil && fv.IsZero() || (f.isZero != nil && f.isZero(fv)))) {
 			continue
 		}
-		for _, filter := range filters {
-			if filter(f, fv) {
-				continue FieldLoop
-			}
+		if opts.filter.CallFilter(filters, f, fv) {
+			continue
 		}
 		e.WriteByte(next)
 		next = ','

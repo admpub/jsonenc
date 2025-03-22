@@ -23,10 +23,10 @@ func main(){
         Username: "Username",
         Password: "Password",
     }
-	r, err := json.MarshalFilter(u, filter.Exclude("Password")) // 排除 Password 字段
-	if err != nil {
-		panic(err)
-	}
+    r, err := json.MarshalFilter(u, filter.Exclude("Password")) // 排除 Password 字段
+    if err != nil {
+        panic(err)
+    }
     println(string(b)) // output: {"Username":"Username"}
 }
 ```

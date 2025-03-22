@@ -57,11 +57,17 @@ func (f includeFilters) Select(name string, v reflect.Value) bool {
 }
 
 func Include(names ...string) Selector {
+	if len(names) == 0 {
+		return nil
+	}
 	f := make(includeFilters)
 	return f.Add(names...)
 }
 
 func Exclude(names ...string) Filter {
+	if len(names) == 0 {
+		return nil
+	}
 	f := make(excludeFilters)
 	return f.Add(names...)
 }

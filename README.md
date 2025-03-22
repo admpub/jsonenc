@@ -1,5 +1,5 @@
 # xencoding
-这是一个给 json 和 xml 序列化功能增加过滤字段功能的 Go 语言功能包
+这是一个给 json 和 xml 序列化功能增加过滤结构体字段的 Go 语言功能包
 
 xencoding/json/standard 和 xencoding/xml/standard 分别从 Go 语言标准库 encoding/json、encoding/xml 中复制，并增加了结构体字段过滤功能
 * MarshalFilter - 过滤某些字段

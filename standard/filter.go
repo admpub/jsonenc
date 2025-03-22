@@ -75,19 +75,19 @@ func Exclude(names ...string) Filter {
 	return f.Add(names...)
 }
 
-func OptionFilter(f Filter) func(*encOpts) {
+func OptionFilter(f Filter) Option {
 	return func(o *encOpts) {
 		o.filter = f
 	}
 }
 
-func OptionSelector(f Selector) func(*encOpts) {
+func OptionSelector(f Selector) Option {
 	return func(o *encOpts) {
 		o.selector = f
 	}
 }
 
-func OptionEscapeHTML(escapeHTML bool) func(*encOpts) {
+func OptionEscapeHTML(escapeHTML bool) Option {
 	return func(o *encOpts) {
 		o.escapeHTML = escapeHTML
 	}
@@ -101,7 +101,9 @@ func MarshalSelector(v any, f Selector) ([]byte, error) {
 	return MarshalWithOption(v, OptionSelector(f))
 }
 
-func MarshalWithOption(v any, opts ...func(*encOpts)) ([]byte, error) {
+type Option func(*encOpts)
+
+func MarshalWithOption(v any, opts ...Option) ([]byte, error) {
 	e := newEncodeState()
 	defer encodeStatePool.Put(e)
 

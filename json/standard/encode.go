@@ -341,7 +341,8 @@ type encOpts struct {
 	// escapeHTML causes '<', '>', and '&' to be escaped in JSON strings.
 	escapeHTML bool
 
-	filter filter.Config
+	filter         filter.Config
+	prefix, indent string
 }
 
 type encoderFunc func(e *encodeState, v reflect.Value, opts encOpts)

@@ -22,6 +22,13 @@ func OptionSelector(f filter.Selector) Option {
 	}
 }
 
+func OptionIndent(prefix, indent string) Option {
+	return func(p *printer) {
+		p.prefix = prefix
+		p.indent = indent
+	}
+}
+
 func MarshalFilter(v any, f filter.Filter) ([]byte, error) {
 	return MarshalWithOption(v, OptionFilter(f))
 }
